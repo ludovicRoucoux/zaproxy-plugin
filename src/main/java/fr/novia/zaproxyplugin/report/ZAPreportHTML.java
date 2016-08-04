@@ -22,52 +22,26 @@
  * SOFTWARE.
  */
 
-package fr.novia.zaproxyplugin;
+package fr.novia.zaproxyplugin.report;
 
-import hudson.model.BuildListener;
-
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import org.zaproxy.clientapi.core.ClientApi;
+import org.zaproxy.clientapi.core.ClientApiException;
 
 /**
- * Classe qui permet d'afficher les sorties (standard, d'erreur, ...)
- * d'une application externe.
+ * Used to generate ZAP report in html. 
  * 
  * @author ludovic.roucoux
  *
  */
-public class FluxDisplay implements Runnable {
-	
-	private final InputStream inputStream;
-	private final BuildListener listener;
-	
-	public FluxDisplay(InputStream is, BuildListener listener) {
-		this.inputStream = is;
-		this.listener = listener;
-	}
-	
-	private BufferedReader getBufferedReader(InputStream is) {
-		return new BufferedReader(new InputStreamReader(is));
+public class ZAPreportHTML extends ZAPreport {
+
+	public ZAPreportHTML() {
+		this.format = ZAPreport.REPORT_FORMAT_HTML;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Runnable#run()
-	 */
 	@Override
-	public void run() {
-		try {
-			BufferedReader br = getBufferedReader(inputStream);
-			String line = "";
-			try {
-				while ((line = br.readLine()) != null) {
-					listener.getLogger().println(line);
-				}
-			} finally {
-				br.close();
-			}
-		} catch (final Exception e) {
-			e.printStackTrace();
-		}
+	public byte[] generateReport(ClientApi clientApi, String apikey) throws ClientApiException {
+		return clientApi.core.htmlreport(apikey);
 	}
+
 }
